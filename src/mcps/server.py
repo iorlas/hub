@@ -8,15 +8,17 @@ from mcps.servers.jackett import mcp as jackett_mcp
 from mcps.servers.tmdb import mcp as tmdb_mcp
 from mcps.servers.transmission import mcp as transmission_mcp
 
-# Create shared OAuth provider and set on each MCP instance
+# Create per-server OAuth providers with correct base_url per mount path.
+# Each provider needs its own base_url so OAuth metadata advertises endpoints
+# at the correct subpath (e.g., /jackett/authorize, not /authorize).
 if settings.auth_users:
-    auth_provider = McpsOAuthProvider(
-        base_url=settings.auth_issuer,
-        users=settings.get_users(),
-    )
-    jackett_mcp.auth = auth_provider
-    tmdb_mcp.auth = auth_provider
-    transmission_mcp.auth = auth_provider
+    users = settings.get_users()
+    issuer = settings.auth_issuer.rstrip("/")
+    for mcp_instance, mount in [(jackett_mcp, "jackett"), (tmdb_mcp, "tmdb"), (transmission_mcp, "transmission")]:
+        mcp_instance.auth = McpsOAuthProvider(
+            base_url=f"{issuer}/{mount}",
+            users=users,
+        )
 
 # Create HTTP apps (auth is read from mcp.auth internally)
 jackett_app = jackett_mcp.http_app(path="/")

@@ -20,6 +20,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.routing import Route
 
+from fastmcp.server.auth.auth import ClientRegistrationOptions
 from fastmcp.server.auth.providers.in_memory import InMemoryOAuthProvider
 
 _LOGIN_TEMPLATE = (Path(__file__).parent / "login.html").read_text()
@@ -38,6 +39,9 @@ class McpsOAuthProvider(InMemoryOAuthProvider):
         super().__init__(
             base_url=base_url,
             required_scopes=required_scopes,
+            client_registration_options=ClientRegistrationOptions(
+                enabled=True,
+            ),
         )
         self._users = users
         # Pending auth sessions: session_id -> (client, params)
