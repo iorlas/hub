@@ -1,0 +1,154 @@
+[
+  {
+    "name": "search_media",
+    "description": "Search movies/TV. Fields: title, original_title, media_type, overview, release_date, vote_average, genre_ids, alt_titles",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "default": null,
+          "type": "string"
+        },
+        "imdb_id": {
+          "default": null,
+          "description": "IMDB ID (tt0111161)",
+          "type": "string"
+        },
+        "media_type": {
+          "default": null,
+          "enum": [
+            "movie",
+            "tv"
+          ],
+          "type": "string"
+        },
+        "year": {
+          "default": null,
+          "description": "Release year",
+          "type": "integer"
+        },
+        "filter_expr": {
+          "default": null,
+          "description": "JMESPath filter; search(@, 'text') for text search",
+          "type": "string"
+        },
+        "fields": {
+          "default": null,
+          "description": "Fields (id auto-incl.)",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sort_by": {
+          "default": null,
+          "description": "Sort field, - prefix for desc",
+          "type": "string"
+        },
+        "limit": {
+          "default": 50,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  },
+  {
+    "name": "discover_movies",
+    "description": "Discover movies by recommendations, similarity, or genre. Fields: title, overview, release_date, vote_average, genre_ids",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "description": "Source: recommendations/similar (movie_id) or genre (genre_id)",
+          "enum": [
+            "recommendations",
+            "similar",
+            "genre"
+          ],
+          "type": "string"
+        },
+        "movie_id": {
+          "default": null,
+          "description": "TMDB movie ID",
+          "type": "integer"
+        },
+        "genre_id": {
+          "default": null,
+          "description": "TMDB genre ID",
+          "type": "integer"
+        },
+        "page": {
+          "default": 1,
+          "type": "integer"
+        },
+        "filter_expr": {
+          "default": null,
+          "description": "JMESPath filter; search(@, 'text') for text search",
+          "type": "string"
+        },
+        "fields": {
+          "default": null,
+          "description": "Fields (id auto-incl.)",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sort_by": {
+          "default": null,
+          "description": "Sort field, - prefix for desc",
+          "type": "string"
+        },
+        "limit": {
+          "default": 50,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "list_genres",
+    "description": "List movie genres. Fields: name",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filter_expr": {
+          "default": null,
+          "description": "JMESPath filter; search(@, 'text') for text search",
+          "type": "string"
+        },
+        "fields": {
+          "default": null,
+          "description": "Fields (id auto-incl.)",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sort_by": {
+          "default": null,
+          "description": "Sort field, - prefix for desc",
+          "type": "string"
+        },
+        "limit": {
+          "default": 50,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+]
