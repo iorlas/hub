@@ -1,6 +1,7 @@
 x-shared-env: &shared-env
   GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
   GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+  ALLOWED_EMAILS: ${ALLOWED_EMAILS}
 
 x-shared: &shared
   image: ghcr.io/iorlas/mcps:${IMAGE_TAG}

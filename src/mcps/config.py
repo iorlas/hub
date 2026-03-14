@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
     auth_issuer: str = "http://localhost:8000"
+    allowed_emails: str = ""  # comma-separated: "a@gmail.com,b@gmail.com"
+
+    def get_allowed_emails(self) -> list[str]:
+        return [e.strip() for e in self.allowed_emails.split(",") if e.strip()] if self.allowed_emails else []
 
     # Jackett
     jackett_url: str = "http://localhost:9117"

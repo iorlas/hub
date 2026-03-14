@@ -7,8 +7,7 @@ Usage:
     uvicorn mcps.server:storage --host 0.0.0.0 --port 8000
 """
 
-from fastmcp.server.auth.providers.google import GoogleProvider
-
+from mcps.auth import RestrictedGoogleProvider
 from mcps.config import settings
 from mcps.servers.jackett import mcp as jackett_mcp
 from mcps.servers.storage import mcp as storage_mcp
@@ -20,10 +19,11 @@ def _setup_auth(mcp_instance) -> None:
     """Configure Google OAuth on an MCP instance."""
     if not settings.google_client_id:
         return
-    mcp_instance.auth = GoogleProvider(
+    mcp_instance.auth = RestrictedGoogleProvider(
         client_id=settings.google_client_id,
         client_secret=settings.google_client_secret,
         base_url=settings.auth_issuer,
+        allowed_emails=settings.get_allowed_emails(),
         require_authorization_consent=False,
     )
 
