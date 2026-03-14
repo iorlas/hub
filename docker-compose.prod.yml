@@ -10,7 +10,7 @@ x-shared: &shared
     - dokploy-network
   restart: unless-stopped
   healthcheck:
-    test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+    test: ["CMD-SHELL", "curl -sf -o /dev/null -w '%{http_code}' http://localhost:8000/ | grep -qE '200|401'"]
     interval: 10s
     timeout: 5s
     retries: 3
