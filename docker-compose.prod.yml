@@ -68,6 +68,22 @@ services:
       traefik.http.routers.mcps-tmdb.tls.certresolver: letsencrypt
       traefik.http.services.mcps-tmdb.loadbalancer.server.port: "8000"
 
+  mcps-storage:
+    <<: *shared
+    command: ["sh", "-c", "uv run uvicorn mcps.server:storage --host 0.0.0.0 --port 8000"]
+    environment:
+      <<: *shared-env
+      AUTH_ISSUER: https://mcps-storage.shen.iorlas.net
+      WEBDAV_URL: ${WEBDAV_URL}
+      WEBDAV_USER: ${WEBDAV_USER}
+      WEBDAV_PASS: ${WEBDAV_PASS}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mcps-storage.rule: Host(`mcps-storage.shen.iorlas.net`)
+      traefik.http.routers.mcps-storage.entrypoints: websecure
+      traefik.http.routers.mcps-storage.tls.certresolver: letsencrypt
+      traefik.http.services.mcps-storage.loadbalancer.server.port: "8000"
+
   jackett:
     image: linuxserver/jackett:latest
     volumes:

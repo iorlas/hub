@@ -164,6 +164,25 @@ def _aggregate_by_depth(files: list[TorrentFile], depth: int) -> list[BaseModel]
     return result + list(folders.values())
 
 
+class DiskUsage(BaseModel):
+    download_dir: str
+    free_bytes: int
+    free_gb: float
+
+
+@mcp.tool
+def get_free_space() -> DiskUsage:
+    """Get free disk space in the download directory."""
+    client = get_client()
+    session = client.get_session()
+    free = session.download_dir_free_space
+    return DiskUsage(
+        download_dir=session.download_dir,
+        free_bytes=free,
+        free_gb=round(free / (1024**3), 2),
+    )
+
+
 @mcp.tool
 def list_torrents(
     filter_expr: Annotated[

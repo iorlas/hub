@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     # TMDB
     tmdb_api_key: str = ""
 
+    # WebDAV (Keenetic router storage)
+    webdav_url: str = "https://segaa.keenetic.link/webdav/"
+    webdav_user: str = ""
+    webdav_pass: str = ""
+
     # Transmission
     transmission_host: str = "localhost"
     transmission_port: int = 9091
