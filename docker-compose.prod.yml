@@ -1,41 +1,72 @@
+x-shared-env: &shared-env
+  AUTH_USERS: ${AUTH_USERS}
+  AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
+
+x-shared: &shared
+  image: ghcr.io/iorlas/mcps:${IMAGE_TAG}
+  expose:
+    - "8000"
+  networks:
+    - dokploy-network
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 10s
+
 services:
-  mcp-server:
-    image: ghcr.io/iorlas/mcps:${IMAGE_TAG}
+  mcps-jackett:
+    <<: *shared
+    command: ["sh", "-c", "uv run uvicorn mcps.server:jackett --host 0.0.0.0 --port 8000"]
     environment:
-      - HOST=0.0.0.0
-      - PORT=8000
-      - AUTH_USERS=${AUTH_USERS}
-      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY}
-      - AUTH_ISSUER=https://mcps.shen.iorlas.net
-      - JACKETT_URL=http://jackett:9117
-      - JACKETT_API_KEY=${JACKETT_API_KEY}
-      - TMDB_API_KEY=${TMDB_API_KEY}
-      - TRANSMISSION_HOST=torrents.segaa.keenetic.link
-      - TRANSMISSION_PORT=443
-      - TRANSMISSION_PATH=/transmission/rpc
-      - TRANSMISSION_USER=${TRANSMISSION_USER}
-      - TRANSMISSION_PASS=${TRANSMISSION_PASS}
-      - TRANSMISSION_SSL=true
-    expose:
-      - "8000"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    networks:
-      - dokploy-network
+      <<: *shared-env
+      AUTH_ISSUER: https://mcps-jackett.shen.iorlas.net
+      JACKETT_URL: http://jackett:9117
+      JACKETT_API_KEY: ${JACKETT_API_KEY}
     depends_on:
       jackett:
         condition: service_healthy
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.mcps.rule=Host(`mcps.shen.iorlas.net`)
-      - traefik.http.routers.mcps.entrypoints=websecure
-      - traefik.http.routers.mcps.tls.certresolver=letsencrypt
-      - traefik.http.services.mcps.loadbalancer.server.port=8000
-    restart: unless-stopped
+      traefik.enable: "true"
+      traefik.http.routers.mcps-jackett.rule: Host(`mcps-jackett.shen.iorlas.net`)
+      traefik.http.routers.mcps-jackett.entrypoints: websecure
+      traefik.http.routers.mcps-jackett.tls.certresolver: letsencrypt
+      traefik.http.services.mcps-jackett.loadbalancer.server.port: "8000"
+
+  mcps-transmission:
+    <<: *shared
+    command: ["sh", "-c", "uv run uvicorn mcps.server:transmission --host 0.0.0.0 --port 8000"]
+    environment:
+      <<: *shared-env
+      AUTH_ISSUER: https://mcps-transmission.shen.iorlas.net
+      TRANSMISSION_HOST: torrents.segaa.keenetic.link
+      TRANSMISSION_PORT: "443"
+      TRANSMISSION_PATH: /transmission/rpc
+      TRANSMISSION_USER: ${TRANSMISSION_USER}
+      TRANSMISSION_PASS: ${TRANSMISSION_PASS}
+      TRANSMISSION_SSL: "true"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mcps-transmission.rule: Host(`mcps-transmission.shen.iorlas.net`)
+      traefik.http.routers.mcps-transmission.entrypoints: websecure
+      traefik.http.routers.mcps-transmission.tls.certresolver: letsencrypt
+      traefik.http.services.mcps-transmission.loadbalancer.server.port: "8000"
+
+  mcps-tmdb:
+    <<: *shared
+    command: ["sh", "-c", "uv run uvicorn mcps.server:tmdb --host 0.0.0.0 --port 8000"]
+    environment:
+      <<: *shared-env
+      AUTH_ISSUER: https://mcps-tmdb.shen.iorlas.net
+      TMDB_API_KEY: ${TMDB_API_KEY}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mcps-tmdb.rule: Host(`mcps-tmdb.shen.iorlas.net`)
+      traefik.http.routers.mcps-tmdb.entrypoints: websecure
+      traefik.http.routers.mcps-tmdb.tls.certresolver: letsencrypt
+      traefik.http.services.mcps-tmdb.loadbalancer.server.port: "8000"
 
   jackett:
     image: linuxserver/jackett:latest
@@ -51,11 +82,11 @@ services:
     networks:
       - dokploy-network
     labels:
-      - tailscale=true
-      - traefik.enable=true
-      - traefik.http.routers.mcps-jackett.rule=Host(`jackett.ts.shen.iorlas.net`)
-      - traefik.http.routers.mcps-jackett.entrypoints=web
-      - traefik.http.services.mcps-jackett.loadbalancer.server.port=9117
+      tailscale: "true"
+      traefik.enable: "true"
+      traefik.http.routers.mcps-jackett-admin.rule: Host(`jackett.ts.shen.iorlas.net`)
+      traefik.http.routers.mcps-jackett-admin.entrypoints: web
+      traefik.http.services.mcps-jackett-admin.loadbalancer.server.port: "9117"
     restart: unless-stopped
 
 volumes:

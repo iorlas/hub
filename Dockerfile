@@ -13,4 +13,4 @@ ENV HOST=0.0.0.0 PORT=8000 UV_NO_SYNC=true
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
   CMD sh -c "curl -f http://localhost:\$PORT/ || exit 1"
 EXPOSE 8000
-CMD ["sh", "-c", "uv run uvicorn mcps.server:app --host 0.0.0.0 --port $PORT"]
+CMD ["sh", "-c", "uv run uvicorn mcps.server:jackett --host 0.0.0.0 --port $PORT"]
