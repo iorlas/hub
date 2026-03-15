@@ -92,23 +92,31 @@ class TorrentFileList(BaseModel):
     hint: str | None = None
 
 
-def _resolve_url(url: str) -> str:
-    """Resolve URL, following redirects to magnet links.
+def _resolve_url(url: str) -> str | bytes:
+    """Resolve URL to magnet link or download .torrent file content.
 
     Jackett proxy URLs behave differently per indexer:
     - Some return 302 redirect to magnet: link -> extract magnet
-    - Some return .torrent file directly -> pass URL to transmission
+    - Some return .torrent file directly -> download and return bytes
 
-    Transmission can handle both magnet links and torrent file URLs.
+    Returns magnet string or .torrent file bytes. Transmission accepts both
+    via add_torrent(). We must download .torrent files ourselves because
+    Transmission (on the router) can't reach internal Docker hostnames.
     """
     if url.startswith("magnet:"):
         return url
     try:
-        resp = httpx.get(url, follow_redirects=False, timeout=10.0)
+        resp = httpx.get(url, follow_redirects=True, timeout=30.0)
+        if resp.url and str(resp.url).startswith("magnet:"):
+            return str(resp.url)
+        # Check if redirect led to a magnet via Location header
         if resp.status_code in (301, 302, 303, 307, 308):
             location = resp.headers.get("location", "")
             if location.startswith("magnet:"):
                 return location
+        # Got a .torrent file — return raw bytes for Transmission
+        if resp.status_code == 200 and resp.content:
+            return resp.content
     except Exception as e:
         logger.debug(f"transmission.resolve_url_failed url={url} error={e}")
     return url
