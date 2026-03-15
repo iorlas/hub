@@ -100,12 +100,26 @@ def list_dir(
     return TsvList(data=to_tsv(result), total=total, offset=offset, has_more=has_more)
 
 
+def _walk(path: str) -> list[FileEntry]:
+    """Recursively list all entries via iterative Depth:1 PROPFIND calls."""
+    all_entries: list[FileEntry] = []
+    dirs_to_visit = [path]
+    while dirs_to_visit:
+        current = dirs_to_visit.pop()
+        entries = _propfind(current, depth=1)
+        for e in entries:
+            all_entries.append(e)
+            if e.is_dir:
+                dirs_to_visit.append(e.path)
+    return all_entries
+
+
 @mcp.tool
 def get_dir_size(
     path: Annotated[str, Field(description="Directory path to measure")],
 ) -> dict:
     """Get total size of a directory (recursive). May be slow for large dirs."""
-    entries = _propfind(path, depth=999)
+    entries = _walk(path)
     total = sum(e.size for e in entries if not e.is_dir)
     count_files = sum(1 for e in entries if not e.is_dir)
     count_dirs = sum(1 for e in entries if e.is_dir)
