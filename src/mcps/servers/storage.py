@@ -102,26 +102,28 @@ def list_dir(
     return TsvList(data=to_tsv(result), total=total, offset=offset, has_more=has_more)
 
 
-def _walk(path: str) -> list[FileEntry]:
+def _walk(path: str, max_depth: int | None = None) -> list[FileEntry]:
     """Recursively list all entries via iterative Depth:1 PROPFIND calls."""
     all_entries: list[FileEntry] = []
-    dirs_to_visit = [path]
+    # (path, current_depth)
+    dirs_to_visit = [(path, 0)]
     while dirs_to_visit:
-        current = dirs_to_visit.pop()
+        current, depth = dirs_to_visit.pop()
         entries = _propfind(current, depth=1)
         for e in entries:
             all_entries.append(e)
-            if e.is_dir:
-                dirs_to_visit.append(e.path)
+            if e.is_dir and (max_depth is None or depth < max_depth):
+                dirs_to_visit.append((e.path, depth + 1))
     return all_entries
 
 
 @mcp.tool
 def get_dir_size(
     path: Annotated[str, Field(description="Directory path to measure")],
+    max_depth: Annotated[int | None, Field(description="Max recursion depth. 1=immediate children only. None=full recursive. Use 1-2 for large dirs.")] = None,
 ) -> dict:
-    """Get total size of a directory (recursive). May be slow for large dirs."""
-    entries = _walk(path)
+    """Get total size of a directory. Use max_depth=1 for quick scan of large dirs, None for full recursive (slow on deep trees)."""
+    entries = _walk(path, max_depth=max_depth)
     total = sum(e.size for e in entries if not e.is_dir)
     count_files = sum(1 for e in entries if not e.is_dir)
     count_dirs = sum(1 for e in entries if e.is_dir)
