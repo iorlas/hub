@@ -15,8 +15,7 @@ x-reelm: &reelm
 services:
   # ── Gateway (public, handles auth + federation) ──
   gateway:
-    image: ghcr.io/iorlas/reelm:${IMAGE_TAG}
-    command: ["agentgateway", "-f", "/etc/reelm/gateway.yaml"]
+    image: ghcr.io/iorlas/reelm-gateway:${IMAGE_TAG}
     expose:
       - "3000"
     networks:

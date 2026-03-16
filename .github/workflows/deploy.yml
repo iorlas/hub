@@ -47,7 +47,7 @@ jobs:
             type=ref,event=pr
             type=sha,prefix=main-
 
-      - name: Build and push Docker image
+      - name: Build and push MCP servers image
         id: build
         uses: docker/build-push-action@v6
         with:
@@ -57,6 +57,24 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Extract gateway metadata
+        id: gw-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-gateway
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=main-
+
+      - name: Build and push gateway image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./gateway
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.gw-meta.outputs.tags }}
+          labels: ${{ steps.gw-meta.outputs.labels }}
 
       - name: Generate artifact attestation
         if: github.event_name != 'pull_request'
