@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install agentgateway binary
-COPY --from=cr.agentgateway.dev/agentgateway:0.11.1 /usr/local/bin/agentgateway /usr/local/bin/agentgateway
+COPY --from=cr.agentgateway.dev/agentgateway:0.11.1 /app/agentgateway /usr/local/bin/agentgateway
 
 # Python dependencies
 COPY pyproject.toml uv.lock README.md ./
