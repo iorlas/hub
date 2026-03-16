@@ -12,16 +12,17 @@ binds:
       policies:
         cors:
           allowOrigins: ["*"]
-          allowHeaders: [mcp-protocol-version, content-type, authorization]
+          allowHeaders: ["*"]
+          exposeHeaders: ["Mcp-Session-Id"]
       backends:
       - mcp:
           targets:
           - name: reelm_torrents
-            streamableHttp:
-              url: http://reelm-transmission:8000/mcp
+            mcp:
+              host: http://reelm-transmission:8000/mcp/
           - name: reelm_search
-            streamableHttp:
-              url: http://reelm-jackett:8000/mcp
+            mcp:
+              host: http://reelm-jackett:8000/mcp/
           - name: reelm_storage
-            streamableHttp:
-              url: http://reelm-storage:8000/mcp
+            mcp:
+              host: http://reelm-storage:8000/mcp/
