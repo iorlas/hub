@@ -108,7 +108,7 @@ jobs:
             "WEBDAV_PASS=${WEBDAV_PASS}" \
           )
 
-          curl -sf -X POST "${DOKPLOY_URL}/api/compose.update" \
+          curl -s --fail-with-body -X POST "${DOKPLOY_URL}/api/compose.update" \
             -H "x-api-key: ${DOKPLOY_AUTH_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
