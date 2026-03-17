@@ -9,8 +9,8 @@ x-reelm: &reelm
     test: ["CMD-SHELL", "curl -sf -o /dev/null -w '%{http_code}' http://localhost:8000/ | grep -qE '200|404|406'"]
     interval: 10s
     timeout: 5s
-    retries: 3
-    start_period: 10s
+    retries: 5
+    start_period: 30s
 
 services:
   # ── Gateway (public, handles auth + federation) ──
