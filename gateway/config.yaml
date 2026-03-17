@@ -27,6 +27,8 @@ binds:
         mcpAuthentication:
           mode: strict
           issuer: https://pioneering-friendship-09-staging.authkit.app/
+          audiences:
+          - https://reelm.shen.iorlas.net
           jwks:
             url: https://pioneering-friendship-09-staging.authkit.app/.well-known/jwks.json
           resourceMetadata:
