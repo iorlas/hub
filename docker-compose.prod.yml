@@ -26,12 +26,15 @@ services:
       TRANSMISSION_MCP_URL: http://reelm-transmission:8000/mcp/
       JACKETT_MCP_URL: http://reelm-jackett:8000/mcp/
       STORAGE_MCP_URL: http://reelm-storage:8000/mcp/
+      TMDB_MCP_URL: http://reelm-tmdb:8000/mcp/
     depends_on:
       reelm-transmission:
         condition: service_healthy
       reelm-jackett:
         condition: service_healthy
       reelm-storage:
+        condition: service_healthy
+      reelm-tmdb:
         condition: service_healthy
     labels:
       traefik.enable: "true"
@@ -69,6 +72,12 @@ services:
       WEBDAV_URL: ${WEBDAV_URL}
       WEBDAV_USER: ${WEBDAV_USER}
       WEBDAV_PASS: ${WEBDAV_PASS}
+
+  reelm-tmdb:
+    <<: *reelm
+    command: ["sh", "-c", "uv run uvicorn mcps.server:tmdb --host 0.0.0.0 --port 8000"]
+    environment:
+      TMDB_API_KEY: ${TMDB_API_KEY}
 
   # ── Jackett (torrent indexer) ──
   jackett:

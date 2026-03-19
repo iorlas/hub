@@ -31,7 +31,7 @@ jobs:
         run: |
           export IMAGE_TAG=test
           export TRANSMISSION_USER=x TRANSMISSION_PASS=x
-          export JACKETT_API_KEY=x WEBDAV_URL=x WEBDAV_USER=x WEBDAV_PASS=x
+          export JACKETT_API_KEY=x WEBDAV_URL=x WEBDAV_USER=x WEBDAV_PASS=x TMDB_API_KEY=x
           export AUTH0_DOMAIN=x AUTH0_CLIENT_ID=x AUTH0_CLIENT_SECRET=x AUTH0_AUDIENCE=x
           docker compose -f docker-compose.prod.yml config --quiet
 
@@ -87,6 +87,7 @@ jobs:
           WEBDAV_URL: ${{ secrets.WEBDAV_URL }}
           WEBDAV_USER: ${{ secrets.WEBDAV_USER }}
           WEBDAV_PASS: ${{ secrets.WEBDAV_PASS }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
@@ -103,6 +104,7 @@ jobs:
             "WEBDAV_URL=${WEBDAV_URL}" \
             "WEBDAV_USER=${WEBDAV_USER}" \
             "WEBDAV_PASS=${WEBDAV_PASS}" \
+            "TMDB_API_KEY=${TMDB_API_KEY}" \
             "AUTH0_DOMAIN=${AUTH0_DOMAIN}" \
             "AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}" \
             "AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}" \

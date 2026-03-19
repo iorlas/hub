@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastmcp>=3.1.0",
-    "fastapi>=0.128.0",
     "uvicorn>=0.40.0",
     "httpx>=0.28.1",
     "transmission-rpc>=8.0.0a4",
@@ -26,7 +25,6 @@ dev = [
     "pytest-asyncio>=1.2.0",
     "pytest-cov>=6.2.0",
     "pytest-mock>=3.15.1",
-    "pytest-recording>=0.13.4",
     "ruff>=0.14.0",
     "ty>=0.0.1a7",
     "pip-audit>=2.9.0",
@@ -59,8 +57,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S106"]  # assert is how tests work; hardcoded test credentials are fine
-"tests/conftest.py" = ["E402"]  # env setup before imports is intentional
+"tests/**" = ["S101", "S106", "E402"]  # assert in tests; hardcoded test creds; env setup before imports
 
 [tool.ty.environment]
 python-version = "3.12"
@@ -80,7 +77,6 @@ testpaths = ["tests"]
 addopts = "-v --strict-markers --cov --cov-report=term:skip-covered --cov-report=xml --cov-fail-under=90"
 pythonpath = ["src"]
 markers = [
-    "contract: contract tests (VCR replay)",
     "unit: unit tests",
 ]
 

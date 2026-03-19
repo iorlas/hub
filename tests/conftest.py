@@ -7,20 +7,13 @@ load_dotenv()
 if not os.getenv("TMDB_API_KEY"):
     os.environ["TMDB_API_KEY"] = "dummy_key_for_vcr_replay"
 
-import pytest
 import tmdbsimple as tmdb
 
 if not tmdb.API_KEY:
     tmdb.API_KEY = os.environ["TMDB_API_KEY"]
 
 
-@pytest.fixture(scope="module")
-def vcr_config():
-    return {
-        "filter_query_parameters": ["api_key"],
-        "filter_headers": ["authorization", "x-transmission-session-id"],
-        "record_mode": "once",
-    }
+import pytest
 
 
 @pytest.fixture(autouse=True)

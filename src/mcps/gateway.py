@@ -24,6 +24,7 @@ BASE_URL = os.environ.get("BASE_URL", "https://reelm.shen.iorlas.net")
 TRANSMISSION_URL = os.environ.get("TRANSMISSION_MCP_URL", "http://reelm-transmission:8000/mcp/")
 JACKETT_URL = os.environ.get("JACKETT_MCP_URL", "http://reelm-jackett:8000/mcp/")
 STORAGE_URL = os.environ.get("STORAGE_MCP_URL", "http://reelm-storage:8000/mcp/")
+TMDB_URL = os.environ.get("TMDB_MCP_URL", "http://reelm-tmdb:8000/mcp/")
 
 # --- Auth ---
 auth = Auth0Provider(
@@ -41,7 +42,8 @@ gateway = FastMCP(
     instructions=(
         "Reelm is your personal media agent. "
         "Use reelm_torrents tools to manage downloads, "
-        "reelm_search tools to find content, "
+        "reelm_search tools to find torrents, "
+        "reelm_media tools to discover movies/TV, "
         "reelm_storage tools to manage files on the NAS."
     ),
     auth=auth,
@@ -51,6 +53,7 @@ gateway = FastMCP(
 gateway.mount(create_proxy(TRANSMISSION_URL), namespace="reelm_torrents")
 gateway.mount(create_proxy(JACKETT_URL), namespace="reelm_search")
 gateway.mount(create_proxy(STORAGE_URL), namespace="reelm_storage")
+gateway.mount(create_proxy(TMDB_URL), namespace="reelm_media")
 
 # --- ASGI app for uvicorn ---
 app = gateway.http_app(path="/mcp")

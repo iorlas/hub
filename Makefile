@@ -9,9 +9,9 @@ lint:
 	@uv run ruff check src/ tests/ || (echo "Lint issues found. Fixable ones can be resolved with 'make fix'." && exit 1)
 	@uv run ty check src/
 	@git ls-files '*.yml' '*.yaml' | xargs uv run yamllint -s
-	@hadolint Dockerfile gateway/Dockerfile
+	@hadolint Dockerfile
 	@IMAGE_TAG=lint TRANSMISSION_USER=x TRANSMISSION_PASS=x JACKETT_API_KEY=x WEBDAV_URL=x WEBDAV_USER=x WEBDAV_PASS=x \
-		AUTH0_DOMAIN=x AUTH0_CLIENT_ID=x AUTH0_CLIENT_SECRET=x AUTH0_AUDIENCE=x \
+		TMDB_API_KEY=x AUTH0_DOMAIN=x AUTH0_CLIENT_ID=x AUTH0_CLIENT_SECRET=x AUTH0_AUDIENCE=x \
 		docker compose -f docker-compose.prod.yml config --quiet
 	@docker compose -f docker-compose.yml config --quiet
 	@uv run pip-audit
