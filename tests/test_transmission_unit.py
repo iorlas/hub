@@ -2,6 +2,7 @@ from datetime import timedelta
 from enum import Enum
 from unittest.mock import MagicMock
 
+import httpx
 import pytest
 
 from mcps.servers.transmission import (
@@ -390,14 +391,15 @@ class TestResolveUrl:
         result = _resolve_url("http://jackett/dl/456")
         assert result == "magnet:?xt=urn:btih:abc"
 
-    def test_returns_original_if_redirect_not_magnet(self, mocker):
+    def test_raises_if_redirect_not_magnet(self, mocker):
         mock_resp = MagicMock()
         mock_resp.status_code = 302
         mock_resp.headers = {"location": "http://example.com/file.torrent"}
+        mock_resp.content = b""
         mocker.patch("httpx.get", return_value=mock_resp)
 
-        result = _resolve_url("http://jackett/dl/789")
-        assert result == "http://jackett/dl/789"
+        with pytest.raises(RuntimeError, match="Unexpected response"):
+            _resolve_url("http://jackett/dl/789")
 
     def test_returns_bytes_if_200_ok(self, mocker):
         mock_resp = MagicMock()
@@ -410,8 +412,8 @@ class TestResolveUrl:
         result = _resolve_url("http://jackett/dl/torrent.torrent")
         assert result == b"torrent-file-bytes"
 
-    def test_returns_original_on_exception(self, mocker):
-        mocker.patch("httpx.head", side_effect=Exception("Network error"))
+    def test_raises_on_exception(self, mocker):
+        mocker.patch("httpx.get", side_effect=httpx.ConnectError("Network error"))
 
-        result = _resolve_url("http://jackett/dl/fail")
-        assert result == "http://jackett/dl/fail"
+        with pytest.raises(RuntimeError, match="Failed to download torrent"):
+            _resolve_url("http://jackett/dl/fail")

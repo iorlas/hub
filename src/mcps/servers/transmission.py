@@ -118,8 +118,10 @@ def _resolve_url(url: str) -> str | bytes:
         if resp.status_code == 200 and resp.content:
             return resp.content
     except (httpx.HTTPError, OSError) as e:
-        logger.debug(f"transmission.resolve_url_failed url={url} error={e}")
-    return url
+        raise RuntimeError(f"Failed to download torrent from {url}: {e}") from e
+    raise RuntimeError(
+        f"Unexpected response from {url}: status={resp.status_code}, content_type={resp.headers.get('content-type', 'unknown')}"
+    )
 
 
 def _torrent_to_model(t: Any) -> Torrent:
