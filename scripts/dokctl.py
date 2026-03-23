@@ -371,8 +371,6 @@ def cmd_sync(client: httpx.Client, args: argparse.Namespace) -> None:
 def cmd_deploy(client: httpx.Client, args: argparse.Namespace) -> None:
     """Sync + deploy + poll until done/error + verify container health."""
     url, token = load_config()
-    skip_health = getattr(args, "no_health_check", False)
-
     # Step 1: sync (includes env resolution + validation)
     cmd_sync(client, args)
 
@@ -457,10 +455,6 @@ def cmd_deploy(client: httpx.Client, args: argparse.Namespace) -> None:
     else:
         _error(f"\nerror: Deploy timed out after {args.timeout}s")
         sys.exit(1)
-
-    if skip_health:
-        print("\nDeploy succeeded (health check skipped).")
-        return
 
     # Step 5: verify container health
     print("Verifying container health...")
@@ -614,7 +608,6 @@ def main() -> None:
     p_deploy.add_argument("compose_file", help="Path to docker-compose.prod.yml")
     p_deploy.add_argument("--env-file", "-e", help="Path to .env file (if omitted, auto-resolves from compose)")
     p_deploy.add_argument("--timeout", "-t", type=int, default=300, help="Timeout in seconds (default: 300)")
-    p_deploy.add_argument("--no-health-check", action="store_true", help="Skip container health verification after deploy")
 
     # logs
     p_logs = sub.add_parser("logs", help="Show container runtime logs (or deploy log with --deploy)")
