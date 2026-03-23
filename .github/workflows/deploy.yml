@@ -116,7 +116,6 @@ jobs:
           DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
           DOKPLOY_COMPOSE_ID: ${{ secrets.DOKPLOY_COMPOSE_ID }}
           # App secrets — dokctl auto-detects these from ${VAR} refs in compose file
-          IMAGE_TAG: main-${{ github.sha }}
           JACKETT_API_KEY: ${{ secrets.JACKETT_API_KEY }}
           TRANSMISSION_USER: ${{ secrets.TRANSMISSION_USER }}
           TRANSMISSION_PASS: ${{ secrets.TRANSMISSION_PASS }}
@@ -133,4 +132,5 @@ jobs:
           echo "${DOKPLOY_AUTH_TOKEN}" > ~/.config/dokploy/token
           echo "${DOKPLOY_URL}" > ~/.config/dokploy/url
 
+          export IMAGE_TAG="main-$(echo '${{ github.sha }}' | cut -c1-7)"
           uv run scripts/dokctl.py deploy "${DOKPLOY_COMPOSE_ID}" docker-compose.prod.yml
