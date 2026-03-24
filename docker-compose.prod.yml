@@ -110,28 +110,31 @@ services:
   openviking:
     image: ghcr.io/volcengine/openviking:main
     pull_policy: always
-    command: >
-      sh -c 'cat > /app/ov.conf <<CONF
-      {
-        "storage": {"workspace": "/app/data"},
-        "vlm": {
-          "provider": "openai",
-          "api_base": "http://litellm:4000/v1",
-          "api_key": "no-auth",
-          "model": "llama3.2:3b"
-        },
-        "embedding": {
-          "dense": {
+    command:
+      - sh
+      - -c
+      - |
+        cat > /app/ov.conf <<'CONF'
+        {
+          "storage": {"workspace": "/app/data"},
+          "vlm": {
             "provider": "openai",
             "api_base": "http://litellm:4000/v1",
             "api_key": "no-auth",
-            "model": "nomic-embed-text",
-            "dimension": 768
+            "model": "llama3.2:3b"
+          },
+          "embedding": {
+            "dense": {
+              "provider": "openai",
+              "api_base": "http://litellm:4000/v1",
+              "api_key": "no-auth",
+              "model": "nomic-embed-text",
+              "dimension": 768
+            }
           }
         }
-      }
-      CONF
-      openviking-server'
+        CONF
+        exec openviking-server
     volumes:
       - openviking-data:/app/data
     healthcheck:
