@@ -46,7 +46,11 @@ def apply_query[T: BaseModel](
         data = [d for d in data if _fuzzy_match(d, search)]
 
     if filter_expr:
-        data = [d for d in data if evaluate(filter_expr, d)]
+        try:
+            data = [d for d in data if evaluate(filter_expr, d)]
+        except Exception as e:
+            msg = f"Invalid filter expression: {filter_expr!r}. Use CEL syntax, e.g. status == 'downloading', progress > 50. Error: {e}"
+            raise ValueError(msg) from e
 
     if sort_by:
         desc = sort_by.startswith("-")

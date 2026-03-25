@@ -114,6 +114,16 @@ class TestApplyQuery:
         result = apply_query([])
         assert result == []
 
+    def test_invalid_filter_raises_helpful_error(self):
+        items = make_items()
+        with pytest.raises(ValueError, match="Invalid filter expression"):
+            apply_query(items, filter_expr="%%%invalid%%%")
+
+    def test_invalid_filter_error_contains_cel_hint(self):
+        items = make_items()
+        with pytest.raises(ValueError, match="CEL syntax"):
+            apply_query(items, filter_expr="%%%invalid%%%")
+
 
 @pytest.mark.unit
 class TestSearchParam:

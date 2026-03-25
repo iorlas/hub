@@ -246,7 +246,7 @@ def get_torrent(
     if not torrent_id.startswith(ID_PREFIX):
         raise ValueError(f"Invalid torrent ID format: {torrent_id}. Expected jkt_xxxxxxxx from search results.")
     if torrent_id not in _cache:
-        raise ValueError(f"Unknown torrent ID: {torrent_id}. Search first.")
+        raise ValueError(f"Unknown torrent ID: {torrent_id}. Search first with search_torrents, then use the ID from results.")
     return _ensure_magnet(_cache[torrent_id])
 
 

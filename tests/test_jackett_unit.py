@@ -242,6 +242,11 @@ class TestGetTorrent:
         with pytest.raises(ValueError, match="Invalid torrent ID format"):
             get_torrent("nonexistent")
 
+    def test_raises_for_missing_cached_id_mentions_search_torrents(self):
+        _cache.clear()
+        with pytest.raises(ValueError, match="search_torrents"):
+            get_torrent("jkt_00000000")
+
 
 SECOND_ITEM_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:torznab="http://torznab.com/schemas/2015/feed">

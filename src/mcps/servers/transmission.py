@@ -115,14 +115,21 @@ def _resolve_url(url: str) -> str | bytes:
             if location.startswith("magnet:"):
                 return location
         if resp.status_code == 404:
-            raise RuntimeError("Torrent download link expired (Jackett cache cleared). Please search again and retry with a fresh result.")
+            raise RuntimeError(
+                "Torrent download link expired (Jackett cache cleared)."
+                " Action: search again with search_torrents, then use get_torrent to get a fresh magnet link."
+            )
         # Got a .torrent file — return raw bytes for Transmission
         if resp.status_code == 200 and resp.content:
             return resp.content
     except (httpx.HTTPError, OSError) as e:
-        raise RuntimeError(f"Failed to download torrent from {url}: {e}") from e
+        raise RuntimeError(
+            f"Failed to download torrent from {url}: {e}. Action: use get_torrent to get a magnet link instead of the download URL."
+        ) from e
     raise RuntimeError(
-        f"Unexpected response from {url}: status={resp.status_code}, content_type={resp.headers.get('content-type', 'unknown')}"
+        f"Unexpected response from {url}:"
+        f" status={resp.status_code}, content_type={resp.headers.get('content-type', 'unknown')}."
+        " Action: use get_torrent to get a magnet link instead of the download URL."
     )
 
 
