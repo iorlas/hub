@@ -45,10 +45,8 @@ jobs:
           WEBDAV_USER: x
           WEBDAV_PASS: x
           TMDB_API_KEY: x
-          AUTH0_DOMAIN: x
-          AUTH0_CLIENT_ID: x
-          AUTH0_CLIENT_SECRET: x
-          AUTH0_AUDIENCE: x
+          GOOGLE_CLIENT_ID: x
+          GOOGLE_CLIENT_SECRET: x
         run: make lint
 
       - name: Test
@@ -123,14 +121,17 @@ jobs:
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
 
+      - name: Install dokploy-ctl
+        if: github.event_name != 'pull_request'
+        run: uv tool install git+https://github.com/agentic-eng/dokploy-ctl.git
+
       - name: Deploy to Dokploy
         if: github.event_name != 'pull_request'
         env:
-          # dokctl config
           DOKPLOY_AUTH_TOKEN: ${{ secrets.DOKPLOY_AUTH_TOKEN }}
           DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
           DOKPLOY_COMPOSE_ID: ${{ secrets.DOKPLOY_COMPOSE_ID }}
-          # App secrets — dokctl auto-detects these from ${VAR} refs in compose file
+          # dokploy-ctl --env resolves ${VAR} refs from environment
           JACKETT_API_KEY: ${{ secrets.JACKETT_API_KEY }}
           TRANSMISSION_USER: ${{ secrets.TRANSMISSION_USER }}
           TRANSMISSION_PASS: ${{ secrets.TRANSMISSION_PASS }}
@@ -141,9 +142,7 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
-          mkdir -p ~/.config/dokploy
-          echo "${DOKPLOY_AUTH_TOKEN}" > ~/.config/dokploy/token
-          echo "${DOKPLOY_URL}" > ~/.config/dokploy/url
+          dokploy-ctl login --url "${DOKPLOY_URL}" --token "${DOKPLOY_AUTH_TOKEN}"
 
           export IMAGE_TAG="main-$(echo '${{ github.sha }}' | cut -c1-7)"
-          scripts/dokctl.py deploy "${DOKPLOY_COMPOSE_ID}" docker-compose.prod.yml
+          dokploy-ctl deploy --env "${DOKPLOY_COMPOSE_ID}" docker-compose.prod.yml
